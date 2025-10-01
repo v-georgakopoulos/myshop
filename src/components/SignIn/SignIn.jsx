@@ -1,8 +1,7 @@
 import { useState } from "react";
 import {
-  createUserDocumentFromAuth,
   signInWithGooglePopup,
-  signInAuthWithEmailAndPassword
+  signInAuthWithEmailAndPassword,
 } from "../../utils/Firebase/firebase";
 
 import FormInput from "../FormInput/FormInput";
@@ -29,16 +28,15 @@ const SignIn = () => {
   };
 
   const signInWithGoogle = async () => {
-    const { user } = await signInWithGooglePopup();
-    await createUserDocumentFromAuth(user);
+    await signInWithGooglePopup();
   };
 
-  const handleSubmit =  async (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
 
     try {
-      const {user} = await signInAuthWithEmailAndPassword(email,password)
-      resetFormFields()
+      await signInAuthWithEmailAndPassword(email, password);
+      resetFormFields();
     } catch (error) {
       switch (error.code) {
         case "auth/wrong-password":
