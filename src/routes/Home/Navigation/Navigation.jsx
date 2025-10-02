@@ -25,7 +25,9 @@ function Navigation() {
     <Fragment>
       <div className="navigation-container">
         <div className="logo-container">
-          <CrwnLogo />
+          <Link to='/'>
+            <CrwnLogo />
+          </Link>
         </div>
         <div className="nav-links-container">
           <Link to="/shop" className="nav-link">

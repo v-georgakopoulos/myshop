@@ -9,7 +9,16 @@ import {
   onAuthStateChanged,
 } from "firebase/auth";
 
-import { getFirestore, doc, getDoc, setDoc } from "firebase/firestore";
+import {
+  getFirestore,
+  doc,
+  getDoc,
+  setDoc,
+  collection,
+  writeBatch,
+  query,
+  getDocs,
+} from "firebase/firestore";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCUEtz17fUp29pQqAvyln5erjtCE1yzAPg",
@@ -35,6 +44,38 @@ export const signInWithGooglePopup = () => {
 
 //step 2
 export const db = getFirestore();
+
+//step 9 create and add collection and documents categories
+export const addCollectionAndDocuments = async (
+  collectionKey,
+  objectsToAdd
+) => {
+  const collectionRef = collection(db, collectionKey);
+  const batch = writeBatch(db);
+
+  objectsToAdd.forEach((object) => {
+    const docRef = doc(collectionRef, object.title.toLowerCase());
+    batch.set(docRef, object);
+  });
+  await batch.commit();
+  console.log("done");
+};
+//step 10 get categories and documents
+export const getCategoriesAndDocuments = async () => {
+  const collectionRef = collection(db, 'categories');
+  const q = query(collectionRef);
+
+  const querySnapshot = await getDocs(q);
+  const categoryMap = querySnapshot.docs.reduce((acc, docSnapshot) => {
+    const { title, items } = docSnapshot.data();
+    acc[title.toLowerCase()] = items;
+    return acc;
+  }, {});
+
+  return categoryMap;
+};
+
+
 //step 5 add additionalInformation
 export const createUserDocumentFromAuth = async (
   userAuth,
@@ -46,7 +87,7 @@ export const createUserDocumentFromAuth = async (
 
   //step 3
   const userSnapshot = await getDoc(userDocRef);
-  console.log(userSnapshot.exists()); 
+  console.log(userSnapshot.exists());
   //if the document exists into the database
   if (!userSnapshot.exists()) {
     const { displayName, email } = userAuth;
@@ -74,10 +115,10 @@ export const createAuthUserWithEmailAndPassword = async (email, password) => {
 
 //step 6
 
-export const signInAuthWithEmailAndPassword = async (email,password) => {
-if(!email || !password) return;
-return await signInWithEmailAndPassword(auth,email,password)
-}
+export const signInAuthWithEmailAndPassword = async (email, password) => {
+  if (!email || !password) return;
+  return await signInWithEmailAndPassword(auth, email, password);
+};
 
 //step 7
 
@@ -85,4 +126,5 @@ export const signOutUser = async () => await signOut(auth);
 
 //STEP 8
 
-export const onAuthStateChangedListener = (callback) => onAuthStateChanged(auth,callback)
+export const onAuthStateChangedListener = (callback) =>
+  onAuthStateChanged(auth, callback);
